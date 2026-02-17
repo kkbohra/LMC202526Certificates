@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Certificate Download Portal</title>
+
+<style>
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #f4f6f9;
+}
+
+header {
+    background: #1e3a8a;
+    color: white;
+    padding: 18px;
+    text-align: center;
+    font-size: 24px;
+    font-weight: bold;
+}
+
+.container {
+    max-width: 1000px;
+    margin: auto;
+    padding: 20px;
+}
+
+.search-box {
+    width: 100%;
+    padding: 12px;
+    font-size: 16px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    margin-bottom: 20px;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+}
+
+th {
+    background: #1e3a8a;
+    color: white;
+    padding: 12px;
+}
+
+td {
+    padding: 12px;
+    text-align: center;
+    border-bottom: 1px solid #eee;
+}
+
+tr:hover {
+    background: #eef2ff;
+}
+
+.btn {
+    padding: 8px 16px;
+    background: #16a34a;
+    color: white;
+    border-radius: 6px;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.btn:hover {
+    background: #15803d;
+}
+
+.no-data {
+    text-align: center;
+    padding: 20px;
+    font-weight: bold;
+    color: #777;
+}
+
+@media (max-width: 600px) {
+    th, td {
+        font-size: 14px;
+        padding: 8px;
+    }
+    header {
+        font-size: 20px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+🎓 Certificate Download Portal
+</header>
+
+<div class="container">
+    <input type="text" id="searchInput" class="search-box" placeholder="Search your name...">
+
+    <table>
+        <thead>
+            <tr>
+                <th>Serial No</th>
+                <th>Student Name</th>
+                <th>Download Certificate</th>
+            </tr>
+        </thead>
+        <tbody id="tableBody">
+            <tr>
+                <td colspan="3" class="no-data">Loading data...</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+<script>
+let allData = [];
+
+// Fetch JSON file
+fetch("data.json")
+.then(response => response.json())
+.then(data => {
+    allData = data;
+    renderTable(allData);
+})
+.catch(error => {
+    document.getElementById("tableBody").innerHTML =
+        `<tr><td colspan="3" class="no-data">Error loading JSON file</td></tr>`;
+});
+
+// Render table
+function renderTable(data) {
+    const tableBody = document.getElementById("tableBody");
+
+    if (!data || data.length === 0) {
+        tableBody.innerHTML = `<tr><td colspan="3" class="no-data">No records found</td></tr>`;
+        return;
+    }
+
+    tableBody.innerHTML = data.map(student => `
+        <tr>
+            <td>${student["SNO"]}</td>
+            <td align=>${student["Name"]} </td>
+            <td>
+                <a class="btn" href="${student["file"]}" download>
+                    Download
+                </a>
+            </td>
+        </tr>
+    `).join("");
+}
+
+// Search by Name
+document.getElementById("searchInput").addEventListener("keyup", function () {
+    const value = this.value.toLowerCase();
+
+    const filtered = allData.filter(student =>
+        student["Name"].toLowerCase().includes(value)
+    );
+
+    renderTable(filtered);
+});
+</script>
+
+</body>
+</html>
